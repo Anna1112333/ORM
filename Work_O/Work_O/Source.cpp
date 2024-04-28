@@ -86,7 +86,7 @@ int main()
 	//setlocale(LC_ALL, "Russian");
 	SetConsoleCP(CP_UTF8);
 	SetConsoleOutputCP(CP_UTF8);
-	//try {
+	try {
 	std::cout << "ORM\n";
 	string c = "host=localhost " //обязательно пробел
 		"port=5432 " //стандартный порт psql
@@ -105,7 +105,7 @@ int main()
 	catch (exception& e) { cout << "table olready exists" << endl; }
 
 
-	std::vector <unique_ptr<publisher>> x_p; //xp.resize(6); //работает
+	std::vector <unique_ptr<publisher>> x_p;  //работает
 	std::string names[] = { "buka", "Thema", "Nauka", "Art", "Pressa", "Litera", "dayTime" };
 	/*for (std::string x : names)
 		x_p.emplace_back(move(new publisher{ x, {} })); //{} -это для collection - books
@@ -113,10 +113,22 @@ int main()
 	Wt::Dbo::Transaction page_p { session };  //{}
 	for(int t=0; t<sizeof(names)/sizeof(std::string); t++)
 	session.add(move(x_p[t]));
-	page_p.commit();
-	*/
+	page_p.commit();*/
 
-	std::vector <unique_ptr<book>> x_b; //работает
+
+	std::vector <unique_ptr<shop>> x_sh;  //работает
+	std::string names_sh[] = { "Azbuka", "World reading" };
+	/*for (std::string x : names_sh)
+		x_sh.emplace_back(move(new shop{ x, {} })); //{} -это для collection - stoks
+
+	Wt::Dbo::Transaction page_sh{ session };  //{}
+	for (int t = 0; t < sizeof(names_sh) / sizeof(std::string); t++)
+		session.add(move(x_sh[t]));
+	page_sh.commit();*/
+
+
+
+	std::vector<std::vector<unique_ptr<book>>> x_b_(7); //работает
 	//издтельства-книги
 	std::vector<string> books1 = { "Book1",  "Book", "Story", "Diktionary", "Book for keeds", "Meer" }; //книги для buka
 	std::vector<string> books2 = { "Book #1", "like summer" }; //Thema
@@ -126,70 +138,103 @@ int main()
 	std::vector<string> books6 = { "Muzik" };//Litera
 	std::vector<string> books7 = { "New folders" };//dayTime
 	std::vector<std::vector<string>> book_all = { books1, books2, books3, books4, books5, books6, books7 };
+	//std::string names[] = { "buka", "Thema", "Nauka", "Art", "Pressa", "Litera", "dayTime" };
+/*std::vector<Wt::Dbo::ptr<publisher>> pub(7);
+{
+	Wt::Dbo::Transaction page_b{ session };
+	for (int i = 0; i < book_all.size(); i++) {
+	std::vector<string> g = book_all[i];
+	pub[i] = session.find<publisher>().where("name=?").bind(names[i]);
+	for (int t = 0; t < g.size(); t++) {
+		x_b_[i].emplace_back(move(new book{g[t], pub[i], {}})); //{} -это для collection - stocks
+		session.add(move(x_b_[i][t]));
+	}	}
+	page_b.commit();
+}*/
+	
+	{
+		Wt::Dbo::Transaction page_sh{ session }; //работает
+		unique_ptr<stock> v1{ new stock{{},{},3} };
+		unique_ptr<stock> v2{ new stock{{},{},7} };
+		/*Wt::Dbo::ptr<book> b1=session.find<book>().where("title = ?").bind("Story");
+		Wt::Dbo::ptr<book> b2 = session.find<book>().where("title = ?").bind("Muzik");
+		Wt::Dbo::ptr<shop> s1 = session.find<shop>().where("name = ?").bind("Azbuka");
+		Wt::Dbo::ptr<shop> s2 = session.find<shop>().where("name = ?").bind("World reading");
+		Wt::Dbo::ptr<stock> v1_ptr = session.add(move(v1));
+		Wt::Dbo::ptr<stock> v2_ptr = session.add(move(v2));
+		v1_ptr.modify()->id_book = b1;
+		v1_ptr.modify()->id_shop = s1;
+		v2_ptr.modify()->id_book = b2;
+		v2_ptr.modify()->id_shop = s2;*/
+		page_sh.commit();
+	}
 
+	Wt::Dbo::Transaction page_sale{ session };//работает
+	unique_ptr <sale> sa1{ new sale{ 4,"2012-10-23",{},7 } };
+	unique_ptr <sale> sa2{ new sale{ 2,"2011-15-13",{},7 } };
+	unique_ptr <sale> sa3{ new sale{ 1,"2012-05-22",{},7 } };
+	unique_ptr <sale> sa4{ new sale{ 1,"2012-11-03",{},7 } };
+	/*Wt::Dbo::ptr<sale> sa1_ptr = session.add(move(sa1));
+	Wt::Dbo::ptr<sale> sa2_ptr = session.add(move(sa2));
+	Wt::Dbo::ptr<sale> sa3_ptr = session.add(move(sa3));
+	Wt::Dbo::ptr<sale> sa4_ptr = session.add(move(sa4));
+	Wt::Dbo::ptr<stock> st1_ptr = session.find<stock>().where("count = ?" ).bind(3);
+	Wt::Dbo::ptr<stock> st2_ptr = session.find<stock>().where("count = ?").bind(7);
+	sa1_ptr.modify()->id_stock = st1_ptr;
+	sa2_ptr.modify()->id_stock = st1_ptr;
+	sa3_ptr.modify()->id_stock = st2_ptr;
+	sa4_ptr.modify()->id_stock = st2_ptr;*/
+	page_sale.commit();
 
-	//int i = 0;
-	//for (std::vector<string> g : book_all) {
-		//try {
-
-			//std::vector<string> g = books2;
-			//Wt::Dbo::ptr<publisher> pub = session.find<publisher>().where("name='buka'");
-			//Wt::Dbo::ptr<publisher> pub0 = session.find<publisher>().where("name=?").bind("buka");
-	std::vector<Wt::Dbo::ptr<publisher>> pub(7); 
-			int i = 2;
-			for (std::vector<string> g : book_all) {
-Wt::Dbo::Transaction page_b{ session };
-				//Wt::Dbo::ptr<publisher> pub1 = session.find<publisher>().where("name=?").bind(names[i]);
-				pub[i] = session.find<publisher>().where("name=?").bind(names[i]);
-				for (int t = 0; t < g.size(); t++)
-				{
-					x_b.emplace_back(move(new book{g[t], pub[i], {}})); //{} -это для collection - stocks
-
-					session.add(move(x_b[t]));
-				}
-				//i++;//session.add(move(x_b[0]));
-	page_b.commit();		
-			}
-
-			
-			/*for (std::string x : g)
-			{
-				std::cout << x << std::endl;
-				x_b.emplace_back(move(new book{ x, pub1, {} })); //{} -это для collection - stocks
-			}
-			Wt::Dbo::Transaction page_b{ session };
-			for (int t = 0; t < sizeof(g) / sizeof(std::string); t++)
-				session.add(move(x_b[t]));
-			page_b.commit();
-			i++;
-			std::cout << "  i= " << i << std::endl;
-		}
-		catch (std::exception& e)
+	
+	//ищем магазины с заданным издателем buka или Litera  от других издателей нет завоза
+	std::cout << "Insert one of names to publisher: buka, Thema, Nauka, "
+		"Art, Pressa, Litera, dayTime:   ";
+	std::string publisher_name;
+	std::cin >> publisher_name;
+	Wt::Dbo::Transaction sel{session};
+	Wt::Dbo::ptr<publisher> p_ptr = session.find<publisher>().where("name = ?").bind(publisher_name);
+	Wt::Dbo::collection<Wt::Dbo::ptr<book>> b_ptrs = session.find<book>();
+	std::vector<Wt::Dbo::ptr<book>> b_pub;
+	std::vector<Wt::Dbo::ptr<stock>>st_pub;
+	std::vector<Wt::Dbo::ptr<shop>>sh_pub;
+	for (auto& bu : b_ptrs)
+	{
+		if (p_ptr == bu->id_publisher)
 		{
-			std::cout << e.what() << std::endl;
-		}*/
-		//}
+			b_pub.emplace_back(bu);
+			//std::cout << bu->title << " ";
+		}//std::cout << std::endl;
+	}
+	Wt::Dbo::collection<Wt::Dbo::ptr<stock>> st_ptrs = session.find<stock>();
+	for (auto& su : st_ptrs)
+	{
+		for (auto& bu : b_pub)
+			if (su->id_book == bu)
+			{
+				if (su->id_shop)
+					sh_pub.emplace_back(su->id_shop);
+				st_pub.emplace_back(su);
+				//std::cout << su->count << " ";
+			}//std::cout << std::endl;
+	}
+	Wt::Dbo::collection<Wt::Dbo::ptr<shop>> sh_ptrs = session.find<shop>();
+	int t = 0;
+	for (auto& shu : sh_ptrs) {
+		for (auto& x : sh_pub) {		
+			if (shu->name == x->name)
+			{
+				t++;
+				std::cout << x->name << " ";
+				break;
+			}
+		}
+	}
+	if (t == 0)
+		std::cout << "Not found any shop.";
+	sel.commit();
 
-
-	/*	unique_ptr<stock> x1{new stock {22, 11, 15}}; // без delete  так как unique_ptr
-		unique_ptr<stock> x0 = make_unique<stock>();
-		x0->id_book = 2;
-		x0->id_shop = 3;
-		x0->count = 4;
-
-		Wt::Dbo::Transaction page0(session);
-		session.add(move(x0));
-		Wt::Dbo::ptr<stock>x5 = session.add(move(x1));
-		page0.commit();
-
-		Wt::Dbo::ptr<stock> new_book = session.find<stock>().where("id_book = ?").bind(22);
-		unique_ptr<book> b1{ new book {"Stories", new_book}};
-		Wt::Dbo::Transaction page_b(session);
-		Wt::Dbo::ptr<book>b5 = session.add(move(b1));
-		page_b.commit();*/
-
-		/* }
-			catch (exception& e) {
+	}catch (exception& e) {
 				cout << e.what() << endl;
-			}*/
+			}
 	}
